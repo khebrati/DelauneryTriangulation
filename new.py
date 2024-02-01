@@ -30,7 +30,9 @@ class Triangle:
                       [self.c,self.a]]
         self.circumcenter = circumcenter(a,b,c)
     def IsPointInCircumcircle(self,point):
-        if (self.a.distance_to(self.circumcenter) > point.distance_to(self.circumcenter)):
+        if (self.a.distance_to(self.circumcenter) > point.distance_to(self.circumcenter)
+            or self.b.distance_to(self.circumcenter) > point.distance_to(self.circumcenter)
+            or self.c.distance_to(self.circumcenter) > point.distance_to(self.circumcenter)):
             return True
         return False
     def HasVertex(self,point):
@@ -89,8 +91,8 @@ def DelaunayTriangulation(points,width,height):
 
     return triangulation
 
-background = 20,40,100
-white = 255,255,255
+background_color = 18,55,42
+line_color =  251,250,218
 width = int(500)
 height = int(500)
 amount = int(100)
@@ -105,11 +107,11 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-    screen.fill(background)
+    screen.fill(background_color)
 
     delaunay = DelaunayTriangulation(points,width,height)
 
     for triangle in delaunay:
-        triangle.Show(screen,white)
+        triangle.Show(screen,line_color)
     pygame.display.update()
 pygame.quit()
