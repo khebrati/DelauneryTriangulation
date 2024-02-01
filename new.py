@@ -12,7 +12,7 @@ def circumcenter(a, b, c):
     return pygame.Vector2((1 / D * (ad * (b[1] - c[1]) + bd * (c[1] - a[1]) + cd * (a[1] - b[1])),
                            1 / D * (ad * (c[0] - b[0]) + bd * (a[0] - c[0]) + cd * (b[0] - a[0]))))
 
-def LineIsEqual(line1,line2):
+def isLineEqual(line1,line2):
     if (line1[0] == line2[0] and line1[1] == line2[1]) or (line1[0] == line2[1] and line1[1] == line2[0]):
         return True
     return False
@@ -20,7 +20,7 @@ def LineIsEqual(line1,line2):
 def distance(point1,point2):
     return math.sqrt((point1[0]-point2[0])**2 + (point1[1]-point2[1])**2)
 
-
+# Matias' method
 def super_triangle(vertices):
     minx = miny = float('inf')
     maxx = maxy = float('-inf')
@@ -30,12 +30,12 @@ def super_triangle(vertices):
         maxx = max(maxx, vertex.x)
         maxy = max(maxy, vertex.y)
 
-    dx = (maxx - minx) * 10
-    dy = (maxy - miny) * 10
+    xDist = (maxx - minx) * 10
+    yDist = (maxy - miny) * 10
 
-    v0 = pygame.Vector2(minx - dx, miny - dy * 3)
-    v1 = pygame.Vector2(minx - dx, maxy + dy)
-    v2 = pygame.Vector2(maxx + dx * 3, maxy + dy)
+    v0 = pygame.Vector2(minx - xDist, miny - yDist * 3)
+    v1 = pygame.Vector2(minx - xDist, maxy + yDist)
+    v2 = pygame.Vector2(maxx + xDist * 3, maxy + yDist)
 
     return Triangle(v0, v1, v2)
 class Triangle:
@@ -48,9 +48,7 @@ class Triangle:
                       [self.c,self.a]]
         self.circumcenter = circumcenter(a,b,c)
     def IsPointInCircumcircle(self,point):
-        if (self.a.distance_to(self.circumcenter) > point.distance_to(self.circumcenter)
-            or self.b.distance_to(self.circumcenter) > point.distance_to(self.circumcenter)
-            or self.c.distance_to(self.circumcenter) > point.distance_to(self.circumcenter)):
+        if (distance(self.a,self.circumcenter) > distance(point,self.circumcenter)):
             return True
         return False
     def HasVertex(self,point):
@@ -82,7 +80,7 @@ def DelaunayTriangulation(points):
                     if triangle == other:
                         continue
                     for otherEdge in other.edges:
-                        if LineIsEqual(triangleEdge,otherEdge):
+                        if isLineEqual(triangleEdge,otherEdge):
                             isShared = True
                 if isShared == False:
                     polygon.append(triangleEdge)
@@ -93,18 +91,14 @@ def DelaunayTriangulation(points):
         for edge in polygon:
             newTriangle = Triangle(edge[0],edge[1],point)
             triangulation.append(newTriangle)
-    to_be_removed = []
+    on_super = []
     for triangle in triangulation:
-        if triangle.HasVertex(superTriangle.a) and triangle in triangulation:
-            to_be_removed.append(triangle)
-        if triangle.HasVertex(superTriangle.b) and triangle in triangulation:
-            to_be_removed.append(triangle)
-        if triangle.HasVertex(superTriangle.c) and triangle in triangulation:
-            to_be_removed.append(triangle)
-    triangulation = [triangle for triangle in triangulation if triangle not in to_be_removed]
+        if triangle.HasVertex(superTriangle.a) or triangle.HasVertex(superTriangle.b) or triangle.HasVertex(superTriangle.c):
+            on_super.append(triangle)
+    for triangle in on_super:
+        triangulation.remove(triangle)
 
     return triangulation
-
 def randomPoints(amount,width,height):
     points = []
     for i in range(amount):
