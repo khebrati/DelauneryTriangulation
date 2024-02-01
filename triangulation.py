@@ -2,7 +2,27 @@ import pygame
 import pygame.gfxdraw
 import math
 import random
+import time
+import json
+import os
 
+def add_value_to_json(file_path, value):
+    data = {}
+
+    # If the file already exists and is not empty, load the existing data
+    if os.path.exists(file_path) and os.path.getsize(file_path) > 0:
+        with open(file_path, 'r') as f:
+            data = json.load(f)
+
+    # Add the new value with the next key
+    next_key = str(len(data) + 1)
+    data[next_key] = value
+
+    # Write the data back to the file
+    with open(file_path, 'w') as f:
+        json.dump(data, f)
+
+# Cartesian coordinate method
 pygame.init()
 def circumcenter(a, b, c):
     ad = a[0] * a[0] + a[1] * a[1]
@@ -59,7 +79,7 @@ class Triangle:
         for edge in self.edges:
             pygame.draw.aaline(screen,colour,edge[0],edge[1])
 
-
+# Bowyer–Watson algorithm
 def DelaunayTriangulation(points):
     triangulation = []
     superTriangle = super_triangle(points)
@@ -102,8 +122,8 @@ def DelaunayTriangulation(points):
 def randomPoints(amount,width,height):
     points = []
     for i in range(amount):
-        x = random.randint(1,width)
-        y = random.randint(1,height)
+        x = random.randint(1,width-1)
+        y = random.randint(1,height-1)
         points.append(pygame.Vector2(x,y))
     return points
 def get_sample_points():
@@ -158,27 +178,41 @@ def get_sample_points():
         pygame.Vector2(1.938367346395429847e-01, 4.750496011835669830e-01)
     ]
     return [pygame.Vector2(point.x * 500, point.y * 500) for point in points]
-# user interface
-background_color = 18,55,42
-line_color =  251,250,218
-width = 1000
-height = 800
+def calculate_triangulation_time(points):
+    start_time = time.time()
+    DelaunayTriangulation(points)
+    end_time = time.time()
+    execution_time = end_time - start_time
+    add_value_to_json("data.json",str(execution_time))
+
+def draw_triangulation(points,width,height):
+    # user interface
+    background_color = 18,55,42
+    line_color =  251,250,218
+    screen = pygame.display.set_mode((width,height))
+    running = True
+    step = 0
+    while running:
+        step = step + 1
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+        screen.fill(background_color)
+        delaunay = DelaunayTriangulation(points)
+        for triangle in delaunay:
+            triangle.Show(screen,line_color)
+        pygame.display.update()
+                                                                 
+    pygame.quit()
+
+
 amount = 50
-screen = pygame.display.set_mode((width,height))
-# points = randomPoints(amount,width,height)
-points = get_sample_points()
-running = True
-while running:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-    screen.fill(background_color)
-
-    delaunay = DelaunayTriangulation(points)
-
-    for triangle in delaunay:
-        triangle.Show(screen,line_color)
-    pygame.display.update()
-pygame.quit()
+points = randomPoints(amount,1000,800)
+# points = get_sample_points()
+draw_triangulation(points,1000,800)
+# for amount in range(3,15):
+#     points = randomPoints(amount,1000,800)
+#     calculate_triangulation_time(points)
+#     draw_triangulation(points,1000,800)
 
 
