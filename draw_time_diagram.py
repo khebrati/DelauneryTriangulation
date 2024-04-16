@@ -17,7 +17,7 @@ clock = pygame.time.Clock()
 
 # Coordinate plane setup
 origin = (window_size[0] // 2, window_size[1] // 2)
-scale = 20  # Change this to scale the points
+scale = 0.5  # Change this to scale the points
 
 # Main loop
 running = True

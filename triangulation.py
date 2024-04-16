@@ -124,6 +124,9 @@ def randomPoints(amount,width,height):
     for i in range(amount):
         x = random.randint(1,width-1)
         y = random.randint(1,height-1)
+        while(pygame.Vector2(x,y) in points):
+            x = random.randint(1,width - 1)
+            y = random.randint(1,height - 1)
         points.append(pygame.Vector2(x,y))
     return points
 def get_sample_points():
@@ -210,9 +213,9 @@ amount = 50
 points = randomPoints(amount,1000,800)
 # points = get_sample_points()
 draw_triangulation(points,1000,800)
-# for amount in range(3,15):
+# for amount in range(3,500):
 #     points = randomPoints(amount,1000,800)
 #     calculate_triangulation_time(points)
-#     draw_triangulation(points,1000,800)
+    # draw_triangulation(points,1000,800)
 
 
